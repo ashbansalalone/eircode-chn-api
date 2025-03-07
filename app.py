@@ -57,7 +57,8 @@ def get_chn():
         return jsonify({"eircode": eircode, "chn": chn_element.text.strip()})
 
     except Exception as e:
-        return jsonify({"error": "CHN not found", "message": str(e)})
+        import traceback
+        return jsonify({"error": "CHN not found", "message": str(e), "traceback": traceback.format_exc()})
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
