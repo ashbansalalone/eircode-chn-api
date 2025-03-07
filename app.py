@@ -5,17 +5,23 @@ from pyppeteer import launch
 app = Flask(__name__)
 
 async def get_chn_from_pyppeteer(eircode):
+    print("Starting browser...")
     browser = await launch(headless=True)
     page = await browser.newPage()
+
+    print("Navigating to the page...")
     await page.goto('https://hseareafinder.ie/')
+    
+    print(f"Typing in Eircode: {eircode}")
+    # Use the correct XPath for the input field (from your previous code)
+    await page.type('//*[@id="app"]/div/div[7]/div[1]/div[1]/input', eircode)  # Correct XPath for Eircode input
+    await page.click('button[type="submit"]')  # Modify with the correct submit button selector
 
-    # Find the input field and type the Eircode
-    await page.type('input#eircode', eircode)  # Adjust the selector based on actual input field
-    await page.click('button[type="submit"]')  # Adjust with the actual submit button
-    await page.waitForSelector('#result')  # Adjust to wait for the result to load
+    print("Waiting for result...")
+    await page.waitForSelector('#result')  # Modify with the correct selector for results
 
-    # Extract the CHN info after page loads
-    result = await page.evaluate('document.querySelector("#result span").textContent')  # Modify the selector accordingly
+    print("Extracting data...")
+    result = await page.evaluate('document.querySelector("#result span").textContent')  # Adjust as needed
 
     await browser.close()
     return result
