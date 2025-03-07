@@ -1,4 +1,3 @@
 flask
-selenium
-gunicorn
-undetected-chromedriver
+pyppeteer
+requests
