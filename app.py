@@ -1,4 +1,5 @@
-# 📌 app.py - Flask API for Render
+import os
+import subprocess
 from flask import Flask, request, jsonify
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -10,18 +11,34 @@ import time
 
 app = Flask(__name__)
 
-# Set up ChromeDriver
-options = webdriver.ChromeOptions()
-options.add_argument('--headless')
-options.add_argument('--no-sandbox')
-options.add_argument('--disable-dev-shm-usage')
+# 📌 Install Google Chrome & ChromeDriver inside Render
+def install_chrome():
+    os.system("wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add -")
+    os.system("echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' > /etc/apt/sources.list.d/google-chrome.list")
+    os.system("apt-get update")
+    os.system("apt-get install -y google-chrome-stable")
 
-service = Service('/usr/bin/chromedriver')
-driver = webdriver.Chrome(service=service, options=options)
+    os.system("wget -N https://storage.googleapis.com/chrome-for-testing-public/134.0.6998.35/linux64/chromedriver-linux64.zip")
+    os.system("unzip -o chromedriver-linux64.zip")
+    os.system("mv chromedriver-linux64/chromedriver /usr/bin/chromedriver")
+    os.system("chmod +x /usr/bin/chromedriver")
+
+# 📌 Run Chrome installation
+install_chrome()
 
 @app.route('/get_chn', methods=['GET'])
 def get_chn():
     eircode = request.args.get('eircode')
+
+    # ✅ Set up ChromeDriver with the correct path
+    options = webdriver.ChromeOptions()
+    options.add_argument('--headless')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+
+    service = Service('/usr/bin/chromedriver')  # ✅ Correct ChromeDriver path
+    driver = webdriver.Chrome(service=service, options=options)
+
     driver.get('https://hseareafinder.ie/')
 
     try:
@@ -43,4 +60,4 @@ def get_chn():
         return jsonify({"error": "CHN not found", "message": str(e)})
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=10000)  # ✅ Changed port for Render
+    app.run(host='0.0.0.0', port=10000)
