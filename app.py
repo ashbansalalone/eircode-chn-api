@@ -8,6 +8,7 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import time
+import traceback
 
 app = Flask(__name__)
 
@@ -18,8 +19,7 @@ def install_chrome():
     os.system("apt-get update")
     os.system("apt-get install -y google-chrome-stable")
 
-    # Update ChromeDriver download URL to a valid one
-    os.system("wget -N https://chromedriver.storage.googleapis.com/113.0.5672.63/chromedriver_linux64.zip")  # Updated link for ChromeDriver
+    os.system("wget -N https://chromedriver.storage.googleapis.com/113.0.5672.63/chromedriver_linux64.zip")
     os.system("unzip -o chromedriver_linux64.zip")
     os.system("mv chromedriver /usr/bin/chromedriver")
     os.system("chmod +x /usr/bin/chromedriver")
@@ -36,8 +36,10 @@ def get_chn():
     options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--remote-debugging-port=9222')
 
-    service = Service('/usr/bin/chromedriver')  # ✅ Correct ChromeDriver path
+    # ✅ Make sure ChromeDriver path is correct
+    service = Service('/usr/bin/chromedriver')  # ChromeDriver path
     driver = webdriver.Chrome(service=service, options=options)
 
     driver.get('https://hseareafinder.ie/')
@@ -58,8 +60,12 @@ def get_chn():
         return jsonify({"eircode": eircode, "chn": chn_element.text.strip()})
 
     except Exception as e:
-        import traceback
-        return jsonify({"error": "CHN not found", "message": str(e), "traceback": traceback.format_exc()})
+        # Log error details for debugging
+        return jsonify({
+            "error": "CHN not found",
+            "message": str(e),
+            "traceback": traceback.format_exc()
+        })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=10000)
