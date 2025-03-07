@@ -12,7 +12,7 @@ import traceback
 
 app = Flask(__name__)
 
-# 📌 Install Google Chrome & ChromeDriver inside Render
+# 📌 Install Google Chrome & ChromeDriver inside Render (to a writable directory)
 def install_chrome():
     os.system("wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | apt-key add -")
     os.system("echo 'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' > /etc/apt/sources.list.d/google-chrome.list")
@@ -20,9 +20,8 @@ def install_chrome():
     os.system("apt-get install -y google-chrome-stable")
 
     os.system("wget -N https://chromedriver.storage.googleapis.com/113.0.5672.63/chromedriver_linux64.zip")
-    os.system("unzip -o chromedriver_linux64.zip")
-    os.system("mv chromedriver /usr/bin/chromedriver")
-    os.system("chmod +x /usr/bin/chromedriver")
+    os.system("unzip -o chromedriver_linux64.zip -d ./chromedriver")  # Save chromedriver to a local directory
+    os.system("chmod +x ./chromedriver/chromedriver")  # Ensure it's executable
 
 # 📌 Run Chrome installation
 install_chrome()
@@ -31,15 +30,14 @@ install_chrome()
 def get_chn():
     eircode = request.args.get('eircode')
 
-    # ✅ Set up ChromeDriver with the correct path
+    # ✅ Set up ChromeDriver with the correct path (pointing to local directory)
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
-    options.add_argument('--remote-debugging-port=9222')
 
-    # ✅ Make sure ChromeDriver path is correct
-    service = Service('/usr/bin/chromedriver')  # ChromeDriver path
+    # Use local path to chromedriver (as it was installed in the current directory)
+    service = Service('./chromedriver/chromedriver')  # Point to the local chromedriver
     driver = webdriver.Chrome(service=service, options=options)
 
     driver.get('https://hseareafinder.ie/')
