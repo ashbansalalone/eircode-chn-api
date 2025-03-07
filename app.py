@@ -18,9 +18,9 @@ def install_chrome():
     os.system("apt-get update")
     os.system("apt-get install -y google-chrome-stable")
 
-    os.system("wget -N https://storage.googleapis.com/chrome-for-testing-public/134.0.6998.35/linux64/chromedriver-linux64.zip")
-    os.system("unzip -o chromedriver-linux64.zip")
-    os.system("mv chromedriver-linux64/chromedriver /usr/bin/chromedriver")
+    os.system("wget -N https://chromedriver.storage.googleapis.com/134.0.6940.0/chromedriver_linux64.zip")
+    os.system("unzip -o chromedriver_linux64.zip")
+    os.system("mv chromedriver /usr/bin/chromedriver")
     os.system("chmod +x /usr/bin/chromedriver")
 
 # 📌 Run Chrome installation
@@ -36,7 +36,8 @@ def get_chn():
     options.add_argument('--no-sandbox')
     options.add_argument('--disable-dev-shm-usage')
 
-    service = Service('/usr/bin/chromedriver')  # ✅ Correct ChromeDriver path
+    # ✅ Make sure ChromeDriver path is correct
+    service = Service('/usr/bin/chromedriver')  # ChromeDriver path for Render
     driver = webdriver.Chrome(service=service, options=options)
 
     driver.get('https://hseareafinder.ie/')
